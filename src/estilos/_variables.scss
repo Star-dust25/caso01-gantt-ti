@@ -1,0 +1,138 @@
+// ============================================================================
+// VARIABLES Y TOKENS DE DISEÑO (PALETA ESTRICTA: #222222, #CAC426, #FFFEEC)
+// ============================================================================
+
+:root,
+html[data-tema="oscuro"] {
+  // Tipografía exclusiva Poppins en Bulma v1
+  --bulma-family-primary: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  --bulma-family-secondary: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  --bulma-body-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  --bulma-code-family: 'Poppins', monospace;
+
+  // Sobrescritura nativa Bulma v1 (Modo Oscuro)
+  --bulma-scheme-main: #222222;
+  --bulma-scheme-main-bis: #262626;
+  --bulma-scheme-main-ter: #2a2a2a;
+  --bulma-body-background-color: #222222;
+  --bulma-body-color: #fffeec;
+  --bulma-text: #fffeec;
+  --bulma-text-strong: #fffeec;
+  --bulma-text-weak: rgba(255, 254, 236, 0.62);
+  --bulma-title-color: #fffeec;
+  --bulma-subtitle-color: rgba(255, 254, 236, 0.72);
+  --bulma-primary: #cac426;
+  --bulma-primary-invert: #222222;
+  --bulma-link: #cac426;
+  --bulma-link-text: #cac426;
+  --bulma-border: rgba(255, 254, 236, 0.12);
+  --bulma-border-weak: rgba(255, 254, 236, 0.07);
+  --bulma-box-background-color: #2a2a2a;
+  --bulma-box-color: #fffeec;
+  --bulma-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --bulma-input-background-color: #262626;
+  --bulma-input-color: #fffeec;
+  --bulma-input-border-color: rgba(255, 254, 236, 0.16);
+  --bulma-input-focus-border-color: #cac426;
+  --bulma-input-focus-box-shadow-color: rgba(202, 196, 38, 0.25);
+  --bulma-modal-content-width: 620px;
+
+  // Tokens propios de la arquitectura UI
+  --color-fondo-principal: #222222;
+  --color-superficie-1: #262626;
+  --color-superficie-2: #2a2a2a;
+  --color-superficie-3: #303030;
+  --color-superficie-flotante: rgba(38, 38, 38, 0.94);
+  --color-superficie-hover: rgba(255, 254, 236, 0.045);
+  --color-superficie-seleccionada: rgba(202, 196, 38, 0.11);
+
+  --color-texto-principal: #fffeec;
+  --color-texto-secundario: rgba(255, 254, 236, 0.72);
+  --color-texto-atenuado: rgba(255, 254, 236, 0.46);
+  --color-texto-sobre-acento: #222222;
+
+  --color-acento: #cac426;
+  --color-acento-intenso: #d8d22b;
+  --color-acento-suave: rgba(202, 196, 38, 0.16);
+  --color-acento-medio: rgba(202, 196, 38, 0.28);
+  --color-acento-borde: rgba(202, 196, 38, 0.55);
+
+  --color-barra-normal-fondo: rgba(255, 254, 236, 0.14);
+  --color-barra-normal-progreso: rgba(255, 254, 236, 0.34);
+  --color-barra-normal-borde: rgba(255, 254, 236, 0.32);
+
+  --color-barra-critica-fondo: rgba(202, 196, 38, 0.26);
+  --color-barra-critica-progreso: #cac426;
+  --color-barra-critica-borde: #cac426;
+
+  --color-borde-sutil: rgba(255, 254, 236, 0.12);
+  --color-borde-malla: rgba(255, 254, 236, 0.065);
+  --color-borde-fuerte: rgba(255, 254, 236, 0.24);
+  --color-sombra-elevada: 0 18px 42px rgba(0, 0, 0, 0.52);
+
+  // Geometría milimétrica compartida entre Tabla y Lienzo Gantt
+  --altura-encabezado-gantt: 56px;
+  --altura-fila-gantt: 46px;
+  --radio-borde-sm: 6px;
+  --radio-borde-md: 10px;
+  --radio-borde-lg: 14px;
+}
+
+html[data-tema="claro"] {
+  --bulma-scheme-main: #fffeec;
+  --bulma-scheme-main-bis: #f6f5e2;
+  --bulma-scheme-main-ter: #ecebd4;
+  --bulma-body-background-color: #fffeec;
+  --bulma-body-color: #222222;
+  --bulma-text: #222222;
+  --bulma-text-strong: #222222;
+  --bulma-text-weak: rgba(34, 34, 34, 0.64);
+  --bulma-title-color: #222222;
+  --bulma-subtitle-color: rgba(34, 34, 34, 0.72);
+  --bulma-primary: #cac426;
+  --bulma-primary-invert: #222222;
+  --bulma-link: #222222;
+  --bulma-link-text: #222222;
+  --bulma-border: rgba(34, 34, 34, 0.14);
+  --bulma-border-weak: rgba(34, 34, 34, 0.08);
+  --bulma-box-background-color: #f6f5e2;
+  --bulma-box-color: #222222;
+  --bulma-box-shadow: 0 10px 28px rgba(34, 34, 34, 0.08);
+  --bulma-input-background-color: #fffeec;
+  --bulma-input-color: #222222;
+  --bulma-input-border-color: rgba(34, 34, 34, 0.22);
+  --bulma-input-focus-border-color: #cac426;
+  --bulma-input-focus-box-shadow-color: rgba(202, 196, 38, 0.3);
+
+  --color-fondo-principal: #fffeec;
+  --color-superficie-1: #f7f6e4;
+  --color-superficie-2: #efeed8;
+  --color-superficie-3: #e5e4ca;
+  --color-superficie-flotante: rgba(247, 246, 228, 0.96);
+  --color-superficie-hover: rgba(34, 34, 34, 0.045);
+  --color-superficie-seleccionada: rgba(202, 196, 38, 0.2);
+
+  --color-texto-principal: #222222;
+  --color-texto-secundario: rgba(34, 34, 34, 0.74);
+  --color-texto-atenuado: rgba(34, 34, 34, 0.48);
+  --color-texto-sobre-acento: #222222;
+
+  --color-acento: #cac426;
+  --color-acento-intenso: #b8b21e;
+  --color-acento-suave: rgba(202, 196, 38, 0.22);
+  --color-acento-medio: rgba(202, 196, 38, 0.36);
+  --color-acento-borde: rgba(160, 155, 20, 0.75);
+
+  --color-barra-normal-fondo: rgba(34, 34, 34, 0.1);
+  --color-barra-normal-progreso: rgba(34, 34, 34, 0.28);
+  --color-barra-normal-borde: rgba(34, 34, 34, 0.35);
+
+  --color-barra-critica-fondo: rgba(202, 196, 38, 0.34);
+  --color-barra-critica-progreso: #cac426;
+  --color-barra-critica-borde: #222222;
+
+  --color-borde-sutil: rgba(34, 34, 34, 0.14);
+  --color-borde-malla: rgba(34, 34, 34, 0.08);
+  --color-borde-fuerte: rgba(34, 34, 34, 0.28);
+  --color-sombra-elevada: 0 18px 42px rgba(34, 34, 34, 0.14);
+}

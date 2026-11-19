@@ -1,0 +1,61 @@
+// ============================================================================
+// HOJA DE IMPRESIÓN Y EXPORTACIÓN PDF (@media print en formato horizontal)
+// ============================================================================
+
+@page {
+  size: A4 landscape;
+  margin: 10mm;
+}
+
+@media print {
+  html,
+  body {
+    background-color: #fffeec !important;
+    color: #222222 !important;
+    height: auto !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .aplicacion-gantt {
+    height: auto !important;
+    max-height: none !important;
+    width: 100% !important;
+    overflow: visible !important;
+    background-color: #fffeec !important;
+    color: #222222 !important;
+  }
+
+  // Ocultar elementos flotantes y controles interactivos durante la exportación
+  .dock-herramientas-flotante,
+  .panel-inspector-flotante,
+  .modal-nueva-tarea,
+  .ocultar-en-impresion,
+  .boton-agarre-fila,
+  .icono-agarre-kpi,
+  .tirador-redimension,
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+
+  .area-trabajo-principal,
+  .contenedor-tabla-tareas,
+  .cuerpo-tabla-tareas,
+  .contenedor-lienzo-gantt,
+  .envoltorio-scroll-gantt {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .tarjeta-kpi {
+    background-color: #f7f6e4 !important;
+    border: 1px solid #222222 !important;
+    color: #222222 !important;
+  }
+
+  .barra-tarea-gantt.es-barra-critica {
+    background-color: rgba(202, 196, 38, 0.4) !important;
+    border: 1.5px solid #222222 !important;
+  }
+}

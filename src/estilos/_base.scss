@@ -1,0 +1,390 @@
+// ============================================================================
+// RESETEO EDITORIAL, INTEGRACIÓN BULMA V1 Y ESTRUCTURA GLOBAL
+// ============================================================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--color-fondo-principal);
+  color: var(--color-texto-principal);
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: var(--color-acento);
+  color: var(--color-texto-sobre-acento);
+}
+
+// Barras de desplazamiento minimalistas
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-superficie-1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-borde-fuerte);
+  border-radius: 999px;
+
+  &:hover {
+    background: var(--color-acento);
+  }
+}
+
+// Contenedor principal de la aplicación
+.aplicacion-gantt {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: var(--color-fondo-principal);
+  color: var(--color-texto-principal);
+}
+
+// Encabezado editorial del Caso 01
+.encabezado-caso {
+  padding: 0.9rem 1.4rem 0.75rem;
+  border-bottom: 1px solid var(--color-borde-sutil);
+  background-color: var(--color-superficie-1);
+  flex-shrink: 0;
+
+  .fila-superior-encabezado {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .bloque-titulo-caso {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .insignia-caso {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-texto-sobre-acento);
+    background-color: var(--color-acento);
+    padding: 0.15rem 0.55rem;
+    border-radius: 4px;
+    width: fit-content;
+  }
+
+  .titulo-principal-proyecto {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-texto-principal);
+    margin: 0;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+  }
+
+  .subtitulo-proyecto {
+    font-size: 0.76rem;
+    color: var(--color-texto-secundario);
+    margin: 0;
+  }
+
+  .controles-encabezado {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+}
+
+// Barra de filtros y búsqueda
+.barra-filtros-proyecto {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.65rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--color-borde-malla);
+  flex-wrap: wrap;
+
+  .grupo-filtros-izquierda {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  .grupo-leyenda-derecha {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    font-size: 0.73rem;
+    color: var(--color-texto-secundario);
+    flex-wrap: wrap;
+  }
+
+  .item-leyenda {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+    white-space: nowrap;
+  }
+
+  .muestra-leyenda {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    display: inline-block;
+
+    &.es-critica {
+      background-color: var(--color-acento);
+      border: 1px solid var(--color-acento);
+    }
+
+    &.es-normal {
+      background-color: var(--color-barra-normal-progreso);
+      border: 1px solid var(--color-barra-normal-borde);
+    }
+
+    &.es-hito {
+      width: 10px;
+      height: 10px;
+      background-color: var(--color-acento);
+      transform: rotate(45deg);
+      border-radius: 2px;
+    }
+  }
+}
+
+// Tarjetas KPI reordenables
+.seccion-indicadores {
+  padding: 0.65rem 1.4rem;
+  border-bottom: 1px solid var(--color-borde-sutil);
+  background-color: var(--color-fondo-principal);
+  flex-shrink: 0;
+
+  .grilla-tarjetas-kpi {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(190px, 1fr));
+    gap: 0.75rem;
+
+    @media (max-width: 1100px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+.tarjeta-kpi {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.35rem;
+  padding: 0.7rem 0.95rem !important;
+  margin-bottom: 0 !important;
+  background-color: var(--color-superficie-2) !important;
+  border: 1px solid var(--color-borde-sutil) !important;
+  border-radius: var(--radio-borde-md) !important;
+  box-shadow: none !important;
+  cursor: grab;
+  user-select: none;
+  transition: border-color 0.18s ease, background-color 0.18s ease, transform 0.18s ease;
+
+  &:hover {
+    border-color: var(--color-acento-borde) !important;
+
+    .icono-agarre-kpi {
+      opacity: 1;
+      color: var(--color-acento);
+    }
+  }
+
+  &.esta-arrastrando {
+    cursor: grabbing;
+    border-color: var(--color-acento) !important;
+    background-color: var(--color-superficie-3) !important;
+    box-shadow: var(--color-sombra-elevada) !important;
+    z-index: 30;
+  }
+
+  &.es-destacada {
+    border-color: var(--color-acento-borde) !important;
+    background: linear-gradient(
+      135deg,
+      var(--color-superficie-2) 0%,
+      var(--color-acento-suave) 100%
+    ) !important;
+  }
+
+  .encabezado-kpi {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .etiqueta-kpi {
+    font-size: 0.71rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-texto-secundario);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .icono-agarre-kpi {
+    opacity: 0.45;
+    color: var(--color-texto-atenuado);
+    transition: opacity 0.15s ease, color 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .cuerpo-kpi {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .valor-principal-kpi {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--color-texto-principal);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  .detalle-kpi {
+    font-size: 0.72rem;
+    color: var(--color-texto-secundario);
+  }
+
+  .barra-progreso-mini {
+    width: 100%;
+    height: 4px;
+    background-color: var(--color-borde-sutil);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 0.15rem;
+
+    .relleno-progreso-mini {
+      height: 100%;
+      background-color: var(--color-acento);
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+  }
+}
+
+// Ajustes minimalistas de Bulma v1 para respetar la paleta monocromática + acento #CAC426
+.button {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  border-radius: var(--radio-borde-sm);
+  font-size: 0.78rem;
+  transition: all 0.15s ease;
+
+  &.boton-primario-acento {
+    background-color: var(--color-acento) !important;
+    color: var(--color-texto-sobre-acento) !important;
+    border-color: var(--color-acento) !important;
+    font-weight: 600;
+
+    &:hover {
+      background-color: var(--color-acento-intenso) !important;
+      transform: translateY(-1px);
+    }
+  }
+
+  &.boton-sutil {
+    background-color: var(--color-superficie-2) !important;
+    color: var(--color-texto-principal) !important;
+    border: 1px solid var(--color-borde-sutil) !important;
+
+    &:hover {
+      border-color: var(--color-acento) !important;
+      color: var(--color-acento) !important;
+    }
+
+    &.es-activo {
+      background-color: var(--color-acento-suave) !important;
+      border-color: var(--color-acento) !important;
+      color: var(--color-texto-principal) !important;
+    }
+  }
+}
+
+.input,
+.select select,
+.textarea {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.78rem;
+  background-color: var(--color-superficie-1) !important;
+  color: var(--color-texto-principal) !important;
+  border: 1px solid var(--color-borde-sutil) !important;
+  border-radius: var(--radio-borde-sm) !important;
+  box-shadow: none !important;
+
+  &:focus {
+    border-color: var(--color-acento) !important;
+    box-shadow: 0 0 0 2px var(--color-acento-suave) !important;
+  }
+
+  &::placeholder {
+    color: var(--color-texto-atenuado) !important;
+  }
+}
+
+.select:not(.is-multiple):not(.is-loading)::after {
+  border-color: var(--color-acento) !important;
+}
+
+.tag {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  border-radius: 5px;
+  font-size: 0.68rem !important;
+
+  &.etiqueta-fase {
+    background-color: var(--color-superficie-3) !important;
+    color: var(--color-texto-secundario) !important;
+    border: 1px solid var(--color-borde-sutil);
+  }
+
+  &.etiqueta-rol {
+    background-color: var(--color-acento-suave) !important;
+    color: var(--color-texto-principal) !important;
+    border: 1px solid var(--color-acento-borde);
+  }
+
+  &.etiqueta-critica {
+    background-color: var(--color-acento) !important;
+    color: var(--color-texto-sobre-acento) !important;
+    font-weight: 700;
+  }
+}

@@ -1,0 +1,623 @@
+// ============================================================================
+// LIENZO DE GANTT, TABLA SINCRONIZADA Y CONECTORES DE DEPENDENCIA
+// ============================================================================
+
+.area-trabajo-principal {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-fondo-principal);
+}
+
+.grupo-paneles-redimensionables {
+  width: 100%;
+  height: 100%;
+}
+
+// Separador arrastrable de react-resizable-panels
+.separador-redimensionable {
+  width: 6px;
+  background-color: var(--color-superficie-1);
+  border-left: 1px solid var(--color-borde-sutil);
+  border-right: 1px solid var(--color-borde-sutil);
+  position: relative;
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  z-index: 15;
+
+  &:hover,
+  &[data-separator="hover"],
+  &[data-separator="active"] {
+    background-color: var(--color-acento-suave);
+    border-color: var(--color-acento);
+
+    .indicador-separador {
+      background-color: var(--color-acento);
+      height: 36px;
+    }
+  }
+
+  .indicador-separador {
+    width: 2px;
+    height: 22px;
+    border-radius: 999px;
+    background-color: var(--color-texto-atenuado);
+    transition: all 0.15s ease;
+  }
+}
+
+// ============================================================================
+// PANEL IZQUIERDO: TABLA DE TAREAS (ALINEACIÓN MILIMÉTRICA)
+// ============================================================================
+
+.contenedor-tabla-tareas {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: var(--color-fondo-principal);
+  overflow: hidden;
+}
+
+.encabezado-tabla-tareas {
+  height: var(--altura-encabezado-gantt);
+  min-height: var(--altura-encabezado-gantt);
+  max-height: var(--altura-encabezado-gantt);
+  display: grid;
+  grid-template-columns: 32px 54px minmax(170px, 1.6fr) 118px 66px 66px 68px;
+  align-items: center;
+  padding: 0 0.65rem;
+  background-color: var(--color-superficie-1);
+  border-bottom: 1px solid var(--color-borde-sutil);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-texto-secundario);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.cuerpo-tabla-tareas {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+  padding-bottom: 32px;
+}
+
+.fila-tabla-tarea {
+  height: var(--altura-fila-gantt);
+  min-height: var(--altura-fila-gantt);
+  max-height: var(--altura-fila-gantt);
+  display: grid;
+  grid-template-columns: 32px 54px minmax(170px, 1.6fr) 118px 66px 66px 68px;
+  align-items: center;
+  padding: 0 0.65rem;
+  border-bottom: 1px solid var(--color-borde-malla);
+  font-size: 0.77rem;
+  color: var(--color-texto-principal);
+  background-color: var(--color-fondo-principal);
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+
+  &:hover,
+  &.es-hover {
+    background-color: var(--color-superficie-hover);
+  }
+
+  &.es-seleccionada {
+    background-color: var(--color-superficie-seleccionada);
+    border-left: 3px solid var(--color-acento);
+    padding-left: calc(0.65rem - 3px);
+  }
+
+  &.es-critica-resaltada {
+    .codigo-tarea-celda {
+      color: var(--color-acento);
+      font-weight: 700;
+    }
+  }
+
+  &.esta-arrastrando-fila {
+    background-color: var(--color-superficie-3);
+    border: 1px solid var(--color-acento);
+    box-shadow: var(--color-sombra-elevada);
+    z-index: 25;
+  }
+
+  .boton-agarre-fila {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    color: var(--color-texto-atenuado);
+    cursor: grab;
+    border-radius: 4px;
+    padding: 0;
+
+    &:hover {
+      color: var(--color-acento);
+      background-color: var(--color-acento-suave);
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  .codigo-tarea-celda {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--color-texto-secundario);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .celda-nombre-tarea {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    padding-right: 0.5rem;
+
+    .linea-titulo-tarea {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-width: 0;
+    }
+
+    .texto-nombre-tarea {
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .subtexto-fase-tarea {
+      font-size: 0.65rem;
+      color: var(--color-texto-atenuado);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .diamante-hito-inline {
+    width: 8px;
+    height: 8px;
+    min-width: 8px;
+    background-color: var(--color-acento);
+    transform: rotate(45deg);
+    display: inline-block;
+    border-radius: 1px;
+  }
+
+  .celda-numero-semana {
+    font-size: 0.73rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-texto-secundario);
+    text-align: center;
+  }
+
+  .celda-avance-tarea {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    font-size: 0.73rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// ============================================================================
+// PANEL DERECHO: LIENZO DEL CRONOGRAMA GANTT
+// ============================================================================
+
+.contenedor-lienzo-gantt {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: var(--color-fondo-principal);
+  overflow: hidden;
+  position: relative;
+}
+
+.envoltorio-scroll-gantt {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  padding-bottom: 32px;
+}
+
+.interior-cronograma-gantt {
+  position: relative;
+  min-width: 100%;
+}
+
+// Encabezado sticky del cronograma (misma altura --altura-encabezado-gantt = 56px)
+.encabezado-cronograma-gantt {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  height: var(--altura-encabezado-gantt);
+  min-height: var(--altura-encabezado-gantt);
+  max-height: var(--altura-encabezado-gantt);
+  background-color: var(--color-superficie-1);
+  border-bottom: 1px solid var(--color-borde-sutil);
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+
+  .fila-fases-superiores {
+    height: 22px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--color-borde-malla);
+    padding: 0 0.75rem;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-texto-secundario);
+    justify-content: space-between;
+  }
+
+  .fila-columnas-semanas {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .columna-encabezado-semana {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid var(--color-borde-malla);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--color-texto-principal);
+    position: relative;
+
+    &.es-semana-limite {
+      border-right: 1px dashed var(--color-acento-borde);
+    }
+
+    .etiqueta-semana-principal {
+      line-height: 1.1;
+    }
+
+    .subdivision-media-semana {
+      font-size: 0.58rem;
+      color: var(--color-texto-atenuado);
+      font-weight: 400;
+    }
+  }
+}
+
+// Cuerpo de filas del Gantt (misma altura --altura-fila-gantt = 46px)
+.cuerpo-filas-gantt {
+  position: relative;
+}
+
+.malla-columnas-fondo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  pointer-events: none;
+  z-index: 1;
+
+  .columna-malla-semana {
+    height: 100%;
+    border-right: 1px solid var(--color-borde-malla);
+    position: relative;
+
+    // Línea sutil de media semana
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      border-right: 1px dashed rgba(255, 254, 236, 0.03);
+    }
+
+    &.es-columna-par {
+      background-color: rgba(255, 254, 236, 0.012);
+    }
+  }
+}
+
+// Capa SVG de conectores curvos de dependencia
+.capa-conectores-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+  overflow: visible;
+
+  .trazo-conector-dependencia {
+    fill: none;
+    stroke: var(--color-borde-fuerte);
+    stroke-width: 1.5px;
+    transition: stroke 0.2s ease, stroke-width 0.2s ease, opacity 0.2s ease;
+
+    &.es-conector-critico {
+      stroke: var(--color-acento);
+      stroke-width: 2px;
+      stroke-dasharray: none;
+    }
+
+    &.es-conector-conflicto {
+      stroke: var(--color-acento);
+      stroke-width: 2.2px;
+      stroke-dasharray: 4 3;
+    }
+
+    &.es-conector-atenuado {
+      opacity: 0.25;
+    }
+  }
+}
+
+// Filas individuales del cronograma
+.fila-lienzo-tarea {
+  position: relative;
+  height: var(--altura-fila-gantt);
+  min-height: var(--altura-fila-gantt);
+  max-height: var(--altura-fila-gantt);
+  border-bottom: 1px solid var(--color-borde-malla);
+  display: flex;
+  align-items: center;
+  z-index: 4;
+  transition: background-color 0.12s ease;
+
+  &.es-hover {
+    background-color: var(--color-superficie-hover);
+  }
+
+  &.es-seleccionada {
+    background-color: var(--color-superficie-seleccionada);
+  }
+}
+
+// ============================================================================
+// BARRA DE TAREA INTERACTIVA Y TIRADORES DE REDIMENSIÓN
+// ============================================================================
+
+.barra-tarea-gantt {
+  position: absolute;
+  top: 7px;
+  height: 32px;
+  border-radius: 7px;
+  background-color: var(--color-barra-normal-fondo);
+  border: 1px solid var(--color-barra-normal-borde);
+  display: flex;
+  align-items: center;
+  cursor: grab;
+  user-select: none;
+  overflow: visible;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-acento);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+
+    .tirador-redimension {
+      opacity: 1;
+    }
+
+    .globo-informacion-barra {
+      opacity: 1;
+      transform: translate(-50%, -6px);
+      pointer-events: auto;
+    }
+  }
+
+  &.esta-manipulando {
+    cursor: grabbing;
+    border-color: var(--color-acento) !important;
+    box-shadow: 0 0 0 2px var(--color-acento-medio), 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+    z-index: 30;
+  }
+
+  &.es-barra-critica {
+    background-color: var(--color-barra-critica-fondo);
+    border-color: var(--color-barra-critica-borde);
+
+    .relleno-avance-barra {
+      background-color: var(--color-barra-critica-progreso);
+    }
+
+    .etiqueta-interna-barra {
+      color: var(--color-texto-principal);
+      font-weight: 600;
+    }
+  }
+
+  &.es-barra-seleccionada {
+    box-shadow: 0 0 0 2px var(--color-acento);
+  }
+
+  // Relleno de progreso interno
+  .contenedor-recorte-barra {
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .relleno-avance-barra {
+    height: 100%;
+    background-color: var(--color-barra-normal-progreso);
+    transition: width 0.15s ease;
+  }
+
+  // Contenido textual dentro de la barra
+  .contenido-barra-tarea {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 0.6rem;
+    gap: 0.4rem;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .etiqueta-interna-barra {
+    font-size: 0.71rem;
+    font-weight: 500;
+    color: var(--color-texto-principal);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+  }
+
+  .porcentaje-interno-barra {
+    font-size: 0.66rem;
+    font-weight: 700;
+    padding: 0.05rem 0.35rem;
+    border-radius: 4px;
+    background-color: rgba(34, 34, 34, 0.65);
+    color: #fffeec;
+    flex-shrink: 0;
+  }
+
+  // Tiradores izquierdo y derecho para estirar o acortar duración
+  .tirador-redimension {
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    width: 9px;
+    z-index: 6;
+    cursor: ew-resize;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s ease, background-color 0.15s ease;
+
+    &::after {
+      content: '';
+      width: 3px;
+      height: 14px;
+      border-radius: 99px;
+      background-color: var(--color-acento);
+    }
+
+    &:hover {
+      background-color: var(--color-acento-suave);
+    }
+
+    &.tirador-izquierdo {
+      left: 1px;
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+    }
+
+    &.tirador-derecho {
+      right: 1px;
+      border-top-right-radius: 5px;
+      border-bottom-right-radius: 5px;
+    }
+  }
+}
+
+// Hito en el Gantt (forma de diamante #CAC426)
+.nodo-hito-gantt {
+  position: absolute;
+  top: 7px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  cursor: grab;
+  user-select: none;
+  z-index: 6;
+
+  &:hover {
+    .rombo-hito {
+      transform: rotate(45deg) scale(1.14);
+      box-shadow: 0 0 0 4px var(--color-acento-suave);
+    }
+
+    .globo-informacion-barra {
+      opacity: 1;
+      transform: translate(-50%, -6px);
+    }
+  }
+
+  &.esta-manipulando {
+    cursor: grabbing;
+    z-index: 30;
+  }
+
+  .rombo-hito {
+    width: 20px;
+    height: 20px;
+    background-color: var(--color-acento);
+    border: 2px solid var(--color-fondo-principal);
+    outline: 1.5px solid var(--color-acento);
+    transform: rotate(45deg);
+    border-radius: 3px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  .etiqueta-hito-lateral {
+    margin-left: 0.65rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--color-texto-principal);
+    background-color: var(--color-superficie-2);
+    border: 1px solid var(--color-acento-borde);
+    padding: 0.15rem 0.5rem;
+    border-radius: 5px;
+    white-space: nowrap;
+  }
+}
+
+// Tooltip flotante al hacer hover sobre una barra o hito
+.globo-informacion-barra {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  background-color: #222222;
+  color: #fffeec;
+  border: 1px solid var(--color-acento);
+  border-radius: 6px;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.68rem;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 45;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+
+  .titulo-globo {
+    font-weight: 600;
+    color: var(--color-acento);
+  }
+
+  .meta-globo {
+    color: rgba(255, 254, 236, 0.82);
+  }
+}
