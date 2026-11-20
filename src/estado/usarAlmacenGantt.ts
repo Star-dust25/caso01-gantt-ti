@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { arrayMove } from '@dnd-kit/sortable';
 import { TAREAS_INICIALES_PROYECTO } from '../datos/proyectoInicial';
 import type {
@@ -28,6 +29,18 @@ function clonarTareas(tareas: TareaProyecto[]): TareaProyecto[] {
     ...t,
     predecesoras: [...t.predecesoras],
   }));
+}
+
+function generarNuevoIdUnico(tareas: TareaProyecto[]): string {
+  let maximo = 0;
+  for (const tarea of tareas) {
+    const coincidencia = /^T-(\d+)$/.exec(tarea.id);
+    if (coincidencia) {
+      const numero = Number(coincidencia[1]);
+      if (numero > maximo) maximo = numero;
+    }
+  }
+  return `T-${String(maximo + 1).padStart(2, '0')}`;
 }
 
 interface EstadoAlmacenGantt {
@@ -78,7 +91,9 @@ interface EstadoAlmacenGantt {
   restablecerTodoElCaso: () => void;
 }
 
-export const usarAlmacenGantt = create<EstadoAlmacenGantt>((set, get) => ({
+export const usarAlmacenGantt = create<EstadoAlmacenGantt>()(
+  persist(
+    (set, get) => ({
   tareas: clonarTareas(TAREAS_INICIALES_PROYECTO),
   historialPasado: [],
   historialFuturo: [],
@@ -165,8 +180,7 @@ export const usarAlmacenGantt = create<EstadoAlmacenGantt>((set, get) => ({
   agregarNuevaTarea: (datosNuevaTarea) => {
     const estadoActual = get();
     const instantanea = clonarTareas(estadoActual.tareas);
-    const numeroSecuencia = estadoActual.tareas.length + 1;
-    const nuevoId = `T-${String(numeroSecuencia).padStart(2, '0')}`;
+    const nuevoId = generarNuevoIdUnico(estadoActual.tareas);
 
     const tareaCreada: TareaProyecto = {
       ...datosNuevaTarea,
@@ -176,10 +190,23 @@ export const usarAlmacenGantt = create<EstadoAlmacenGantt>((set, get) => ({
       porcentajeAvance: Math.min(100, Math.max(0, Math.round(datosNuevaTarea.porcentajeAvance))),
     };
 
+    // Insertar al final de su fase correspondiente para mantener el orden lógico en el Gantt
+    const indiceUltimaDeFase = estadoActual.tareas.reduce(
+      (ultimo, tarea, indice) => (tarea.fase === tareaCreada.fase ? indice : ultimo),
+      -1
+    );
+    const nuevasTareas = [...estadoActual.tareas];
+    if (indiceUltimaDeFase >= 0) {
+      nuevasTareas.splice(indiceUltimaDeFase + 1, 0, tareaCreada);
+    } else {
+      nuevasTareas.push(tareaCreada);
+    }
+
     set({
-      tareas: [...estadoActual.tareas, tareaCreada],
+      tareas: nuevasTareas,
       historialPasado: [...estadoActual.historialPasado.slice(-29), instantanea],
       historialFuturo: [],
+      filtros: { ...FILTROS_INICIALES },
       idTareaSeleccionada: nuevoId,
     });
 
@@ -293,4 +320,16 @@ export const usarAlmacenGantt = create<EstadoAlmacenGantt>((set, get) => ({
       contadorRestablecimientoLayout: estadoActual.contadorRestablecimientoLayout + 1,
     });
   },
-}));
+    }),
+    {
+      name: 'caso01-gantt-ti-estado',
+      partialize: (estado) => ({
+        tareas: estado.tareas,
+        ordenIndicadores: estado.ordenIndicadores,
+        tema: estado.tema,
+        resaltarRutaCritica: estado.resaltarRutaCritica,
+        anchoColumnaSemana: estado.anchoColumnaSemana,
+      }),
+    }
+  )
+);

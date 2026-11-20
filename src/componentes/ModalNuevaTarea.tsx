@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Plus, Diamond } from 'lucide-react';
 import { toast } from 'sonner';
 import { FASES_PROYECTO, ROLES_PROYECTO } from '../datos/proyectoInicial';
 import { usarAlmacenGantt } from '../estado/usarAlmacenGantt';
-import type { FaseProyecto, RolResponsable } from '../tipos/proyecto';
+import type { FaseProyecto, RolResponsable, TareaProyecto } from '../tipos/proyecto';
 import { combinarClases } from '../utilidades/clases';
+
+function calcularSiguienteCodigoWbs(
+  tareas: TareaProyecto[],
+  faseSeleccionada: FaseProyecto
+): string {
+  const numeroFase = Math.max(1, FASES_PROYECTO.indexOf(faseSeleccionada) + 1);
+  const tareasDeFase = tareas.filter((t) => t.fase === faseSeleccionada);
+  return `${numeroFase}.${tareasDeFase.length + 1}`;
+}
 
 export const ModalNuevaTarea: React.FC = () => {
   const modalAbierto = usarAlmacenGantt((e) => e.modalNuevaTareaAbierto);
@@ -12,9 +21,9 @@ export const ModalNuevaTarea: React.FC = () => {
   const tareas = usarAlmacenGantt((e) => e.tareas);
   const agregarNuevaTarea = usarAlmacenGantt((e) => e.agregarNuevaTarea);
 
-  const [codigo, setCodigo] = useState('5.5');
-  const [nombre, setNombre] = useState('');
   const [fase, setFase] = useState<FaseProyecto>('Desarrollo e Integración');
+  const [codigoPersonalizado, setCodigoPersonalizado] = useState<string | null>(null);
+  const [nombre, setNombre] = useState('');
   const [responsable, setResponsable] = useState<RolResponsable>('Dev Backend');
   const [semanaInicio, setSemanaInicio] = useState<number>(6);
   const [duracionSemanas, setDuracionSemanas] = useState<number>(1.5);
@@ -24,14 +33,46 @@ export const ModalNuevaTarea: React.FC = () => {
   const [esHito, setEsHito] = useState<boolean>(false);
   const [notas, setNotas] = useState('');
 
+  const codigoSugerido = useMemo(
+    () => calcularSiguienteCodigoWbs(tareas, fase),
+    [tareas, fase]
+  );
+  const codigoVisible = codigoPersonalizado ?? codigoSugerido;
+
   if (!modalAbierto) return null;
 
+  const cerrarYReiniciar = () => {
+    setCodigoPersonalizado(null);
+    setNombre('');
+    setEntregablePrincipal('');
+    setPredecesoras([]);
+    setPorcentajeAvance(0);
+    setEsHito(false);
+    setNotas('');
+    establecerModal(false);
+  };
+
   const alternarPredecesora = (idTarea: string) => {
-    setPredecesoras((prev) =>
-      prev.includes(idTarea)
+    setPredecesoras((prev) => {
+      const siguienteLista = prev.includes(idTarea)
         ? prev.filter((id) => id !== idTarea)
-        : [...prev, idTarea]
-    );
+        : [...prev, idTarea];
+
+      // Ajustar automáticamente la semana de inicio si una predecesora termina después
+      if (siguienteLista.length > 0) {
+        let finMaximo = 1;
+        for (const idPred of siguienteLista) {
+          const pred = tareas.find((t) => t.id === idPred);
+          if (pred) {
+            const finPred = pred.semanaInicio + pred.duracionSemanas;
+            if (finPred > finMaximo) finMaximo = finPred;
+          }
+        }
+        setSemanaInicio((actual) => Math.max(actual, Math.round(finMaximo * 2) / 2));
+      }
+
+      return siguienteLista;
+    });
   };
 
   const manejarEnvioFormulario = (evento: React.FormEvent) => {
@@ -42,34 +83,28 @@ export const ModalNuevaTarea: React.FC = () => {
     }
 
     const creada = agregarNuevaTarea({
-      codigo: codigo.trim() || `${tareas.length + 1}.0`,
+      codigo: codigoVisible.trim() || codigoSugerido,
       nombre: nombre.trim(),
       fase,
       responsable,
-      semanaInicio,
-      duracionSemanas: esHito ? 0.5 : duracionSemanas,
+      semanaInicio: Math.max(1, semanaInicio),
+      duracionSemanas: esHito ? 0.5 : Math.max(0.5, duracionSemanas),
       porcentajeAvance,
       entregablePrincipal:
         entregablePrincipal.trim() || 'Entregable técnico validado',
       predecesoras,
       esHito,
-      notas: notas.trim() || 'Actividad incorporada al cronograma del proyecto SaaS.',
+      notas:
+        notas.trim() || 'Actividad incorporada al cronograma del proyecto SaaS.',
     });
 
-    toast.success(`Tarea [${creada.codigo}] "${creada.nombre}" añadida al Gantt`);
-    setNombre('');
-    setEntregablePrincipal('');
-    setPredecesoras([]);
-    setNotas('');
-    establecerModal(false);
+    toast.success(`Tarea [${creada.codigo}] "${creada.nombre}" guardada en el Gantt`);
+    cerrarYReiniciar();
   };
 
   return (
-    <div className="modal is-active modal-nueva-tarea">
-      <div
-        className="modal-background"
-        onClick={() => establecerModal(false)}
-      />
+    <div className="modal is-active modal-nueva-tarea" role="dialog" aria-modal="true">
+      <div className="modal-background" onClick={cerrarYReiniciar} />
       <div className="modal-card">
         <header className="modal-card-head">
           <p className="modal-card-title">
@@ -79,11 +114,11 @@ export const ModalNuevaTarea: React.FC = () => {
             type="button"
             className="delete"
             aria-label="Cerrar modal"
-            onClick={() => establecerModal(false)}
+            onClick={cerrarYReiniciar}
           />
         </header>
 
-        <form onSubmit={manejarEnvioFormulario}>
+        <form className="formulario-modal-tarea" onSubmit={manejarEnvioFormulario}>
           <section className="modal-card-body">
             <div className="grilla-modal-encabezado">
               <div>
@@ -91,9 +126,9 @@ export const ModalNuevaTarea: React.FC = () => {
                 <input
                   type="text"
                   className="input is-small"
-                  placeholder="Ej. 3.5"
-                  value={codigo}
-                  onChange={(e) => setCodigo(e.target.value)}
+                  placeholder={codigoSugerido}
+                  value={codigoVisible}
+                  onChange={(e) => setCodigoPersonalizado(e.target.value)}
                 />
               </div>
 
@@ -108,6 +143,7 @@ export const ModalNuevaTarea: React.FC = () => {
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
                   autoFocus
+                  required
                 />
               </div>
 
@@ -134,7 +170,10 @@ export const ModalNuevaTarea: React.FC = () => {
                 <div className="select is-small is-fullwidth">
                   <select
                     value={fase}
-                    onChange={(e) => setFase(e.target.value as FaseProyecto)}
+                    onChange={(e) => {
+                      setFase(e.target.value as FaseProyecto);
+                      setCodigoPersonalizado(null);
+                    }}
                   >
                     {FASES_PROYECTO.map((f) => (
                       <option key={f} value={f}>
@@ -166,9 +205,7 @@ export const ModalNuevaTarea: React.FC = () => {
 
             <div className="grilla-modal-tres">
               <div>
-                <label className="etiqueta-campo-inspector">
-                  Semana de Inicio
-                </label>
+                <label className="etiqueta-campo-inspector">Semana de Inicio</label>
                 <input
                   type="number"
                   step="0.5"
@@ -181,9 +218,7 @@ export const ModalNuevaTarea: React.FC = () => {
               </div>
 
               <div>
-                <label className="etiqueta-campo-inspector">
-                  Duración (Semanas)
-                </label>
+                <label className="etiqueta-campo-inspector">Duración (Semanas)</label>
                 <input
                   type="number"
                   step="0.5"
@@ -200,7 +235,10 @@ export const ModalNuevaTarea: React.FC = () => {
 
               <div className="campo-avance-modal">
                 <label className="etiqueta-campo-inspector">
-                  Avance Inicial ({porcentajeAvance}%)
+                  <span>Avance Inicial</span>
+                  <strong style={{ color: 'var(--color-acento)' }}>
+                    {porcentajeAvance}%
+                  </strong>
                 </label>
                 <input
                   type="range"
@@ -208,7 +246,7 @@ export const ModalNuevaTarea: React.FC = () => {
                   max="100"
                   step="5"
                   className="deslizador-avance"
-                  style={{ marginTop: '0.45rem' }}
+                  style={{ marginTop: '0.35rem' }}
                   value={porcentajeAvance}
                   onChange={(e) => setPorcentajeAvance(Number(e.target.value))}
                 />
@@ -283,7 +321,7 @@ export const ModalNuevaTarea: React.FC = () => {
             <button
               type="button"
               className="button is-small boton-sutil"
-              onClick={() => establecerModal(false)}
+              onClick={cerrarYReiniciar}
             >
               Cancelar
             </button>

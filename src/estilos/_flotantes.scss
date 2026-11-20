@@ -253,18 +253,42 @@
   }
 }
 
-// Modal Bulma personalizado para Nueva Tarea (responsivo en móviles)
+// Estilos compartidos de campos e inputs en Inspector y Modal
+.etiqueta-campo-inspector {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-texto-secundario);
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.deslizador-avance {
+  width: 100%;
+  accent-color: var(--color-acento);
+  cursor: pointer;
+}
+
+// Modal Bulma personalizado para Nueva Tarea (siempre en la capa superior)
 .modal-nueva-tarea {
+  z-index: 200 !important;
   padding: 0.75rem;
 
   .modal-background {
-    background-color: rgba(18, 18, 18, 0.75);
-    backdrop-filter: blur(4px);
+    background-color: rgba(18, 18, 18, 0.78);
+    backdrop-filter: blur(5px);
   }
 
   .modal-card {
+    position: relative;
+    z-index: 201;
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    max-width: 620px;
+    max-width: 640px;
     max-height: calc(100dvh - 1.5rem);
     margin: 0 auto;
     background-color: var(--color-superficie-2);
@@ -274,7 +298,16 @@
     box-shadow: var(--color-sombra-elevada);
   }
 
+  .formulario-modal-tarea {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
   .modal-card-head {
+    flex-shrink: 0;
     background-color: var(--color-superficie-1);
     border-bottom: 1px solid var(--color-borde-sutil);
     padding: 0.9rem 1.15rem;
@@ -292,6 +325,8 @@
   }
 
   .modal-card-body {
+    flex: 1;
+    min-height: 0;
     background-color: var(--color-superficie-2);
     color: var(--color-texto-principal);
     padding: 1.1rem;
@@ -303,6 +338,7 @@
   }
 
   .modal-card-foot {
+    flex-shrink: 0;
     background-color: var(--color-superficie-1);
     border-top: 1px solid var(--color-borde-sutil);
     padding: 0.8rem 1.15rem;
