@@ -161,7 +161,7 @@ export const TablaTareas: React.FC<PropiedadesTablaTareas> = ({
 
   const sensores = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 4 },
+      activationConstraint: { distance: 5 },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
@@ -178,46 +178,48 @@ export const TablaTareas: React.FC<PropiedadesTablaTareas> = ({
 
   return (
     <div className="contenedor-tabla-tareas">
-      <div className="encabezado-tabla-tareas">
-        <div title="Reordenar" />
-        <div>Cód.</div>
-        <div>Actividad / Fase</div>
-        <div>Responsable</div>
-        <div style={{ textAlign: 'center' }}>Inicio</div>
-        <div style={{ textAlign: 'center' }}>Dur.</div>
-        <div style={{ textAlign: 'right' }}>Avance</div>
-      </div>
-
       <div
         ref={referenciaScrollTabla}
         className="cuerpo-tabla-tareas"
         onScroll={alDesplazarVerticalmente}
       >
-        <DndContext
-          sensors={sensores}
-          collisionDetection={closestCenter}
-          onDragEnd={manejarFinReordenamiento}
-        >
-          <SortableContext
-            items={tareas.map((t) => t.id)}
-            strategy={verticalListSortingStrategy}
+        <div className="interior-tabla-tareas">
+          <div className="encabezado-tabla-tareas">
+            <div title="Reordenar" />
+            <div>Cód.</div>
+            <div>Actividad / Fase</div>
+            <div>Responsable</div>
+            <div style={{ textAlign: 'center' }}>Inicio</div>
+            <div style={{ textAlign: 'center' }}>Dur.</div>
+            <div style={{ textAlign: 'right' }}>Avance</div>
+          </div>
+
+          <DndContext
+            sensors={sensores}
+            collisionDetection={closestCenter}
+            onDragEnd={manejarFinReordenamiento}
           >
-            {tareas.map((tarea) => (
-              <FilaTareaOrdenable
-                key={tarea.id}
-                tarea={tarea}
-                metricas={metricasPorTarea[tarea.id]}
-                seleccionada={idTareaSeleccionada === tarea.id}
-                enHover={idTareaHover === tarea.id}
-                resaltarCritica={resaltarRutaCritica}
-                alSeleccionar={(id) =>
-                  seleccionarTarea(idTareaSeleccionada === id ? null : id)
-                }
-                alHover={establecerTareaHover}
-              />
-            ))}
-          </SortableContext>
-        </DndContext>
+            <SortableContext
+              items={tareas.map((t) => t.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {tareas.map((tarea) => (
+                <FilaTareaOrdenable
+                  key={tarea.id}
+                  tarea={tarea}
+                  metricas={metricasPorTarea[tarea.id]}
+                  seleccionada={idTareaSeleccionada === tarea.id}
+                  enHover={idTareaHover === tarea.id}
+                  resaltarCritica={resaltarRutaCritica}
+                  alSeleccionar={(id) =>
+                    seleccionarTarea(idTareaSeleccionada === id ? null : id)
+                  }
+                  alHover={establecerTareaHover}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+        </div>
       </div>
     </div>
   );

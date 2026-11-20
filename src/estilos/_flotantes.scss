@@ -1,23 +1,31 @@
 // ============================================================================
-// ELEMENTOS FLOTANTES ARRASTRABLES: DOCK DE HERRAMIENTAS E INSPECTOR DE TAREA
+// ELEMENTOS FLOTANTES ARRASTRABLES: DOCK, INSPECTOR Y MODAL (100% RESPONSIVOS)
 // ============================================================================
 
 // Dock minimalista flotante inferior
 .dock-herramientas-flotante {
   position: fixed;
-  bottom: 1.15rem;
+  bottom: 1rem;
   left: 50%;
   z-index: 80;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.45rem 0.65rem;
+  gap: 0.32rem;
+  padding: 0.42rem 0.62rem;
+  max-width: calc(100vw - 16px);
+  overflow-x: auto;
   background-color: var(--color-superficie-flotante);
   backdrop-filter: blur(14px);
   border: 1px solid var(--color-borde-fuerte);
   border-radius: 999px;
   box-shadow: var(--color-sombra-elevada);
   user-select: none;
+
+  @media (max-width: 640px) {
+    bottom: 0.55rem;
+    padding: 0.35rem 0.48rem;
+    gap: 0.2rem;
+  }
 
   .zona-agarre-dock {
     display: flex;
@@ -26,11 +34,21 @@
     padding: 0.25rem 0.4rem;
     color: var(--color-texto-atenuado);
     cursor: grab;
+    touch-action: none;
     border-right: 1px solid var(--color-borde-sutil);
     font-size: 0.66rem;
     font-weight: 600;
     letter-spacing: 0.04em;
     text-transform: uppercase;
+    flex-shrink: 0;
+
+    @media (max-width: 540px) {
+      padding: 0.2rem 0.3rem;
+
+      span {
+        display: none;
+      }
+    }
 
     &:active {
       cursor: grabbing;
@@ -42,16 +60,17 @@
     width: 1px;
     height: 20px;
     background-color: var(--color-borde-sutil);
-    margin: 0 0.15rem;
+    margin: 0 0.12rem;
+    flex-shrink: 0;
   }
 
   .boton-dock {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.35rem;
+    gap: 0.32rem;
     height: 32px;
-    padding: 0 0.65rem;
+    padding: 0 0.6rem;
     border-radius: 999px;
     border: 1px solid transparent;
     background: transparent;
@@ -60,7 +79,18 @@
     font-size: 0.72rem;
     font-weight: 500;
     cursor: pointer;
+    flex-shrink: 0;
     transition: all 0.15s ease;
+
+    @media (max-width: 540px) {
+      height: 30px;
+      padding: 0 0.45rem;
+      font-size: 0.68rem;
+
+      span {
+        display: none;
+      }
+    }
 
     &:hover:not(:disabled) {
       background-color: var(--color-superficie-3);
@@ -82,6 +112,10 @@
     &.es-icono-solo {
       width: 32px;
       padding: 0;
+
+      @media (max-width: 540px) {
+        width: 28px;
+      }
     }
   }
 
@@ -89,22 +123,29 @@
     font-size: 0.7rem;
     font-weight: 600;
     color: var(--color-acento);
-    min-width: 44px;
+    min-width: 42px;
     text-align: center;
     font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+
+    @media (max-width: 540px) {
+      min-width: 36px;
+      font-size: 0.65rem;
+    }
   }
 }
 
-// Panel Inspector Flotante arrastrable
+// Panel Inspector Flotante arrastrable (adaptable a móvil como hoja flotante)
 .panel-inspector-flotante {
   position: fixed;
-  top: 96px;
-  right: 24px;
+  top: 90px;
+  right: 20px;
   width: 350px;
-  max-height: calc(100vh - 140px);
+  max-width: calc(100vw - 20px);
+  max-height: calc(100dvh - 130px);
   display: flex;
   flex-direction: column;
-  z-index: 75;
+  z-index: 85;
   background-color: var(--color-superficie-flotante);
   backdrop-filter: blur(16px);
   border: 1px solid var(--color-acento-borde);
@@ -112,14 +153,24 @@
   box-shadow: var(--color-sombra-elevada);
   overflow: hidden;
 
+  @media (max-width: 640px) {
+    top: auto;
+    bottom: 58px;
+    left: 10px;
+    right: 10px;
+    width: calc(100vw - 20px);
+    max-height: 72dvh;
+  }
+
   .encabezado-inspector-arrastrable {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 0.95rem;
+    padding: 0.72rem 0.9rem;
     background-color: var(--color-superficie-2);
     border-bottom: 1px solid var(--color-borde-sutil);
     cursor: grab;
+    touch-action: none;
     user-select: none;
 
     &:active {
@@ -130,22 +181,23 @@
       display: flex;
       align-items: center;
       gap: 0.45rem;
-      font-size: 0.78rem;
+      font-size: 0.77rem;
       font-weight: 600;
       color: var(--color-texto-principal);
     }
   }
 
   .cuerpo-inspector {
-    padding: 0.95rem;
+    padding: 0.9rem;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.72rem;
+    -webkit-overflow-scrolling: touch;
   }
 
   .pie-inspector {
-    padding: 0.7rem 0.95rem;
+    padding: 0.65rem 0.9rem;
     background-color: var(--color-superficie-2);
     border-top: 1px solid var(--color-borde-sutil);
     display: flex;
@@ -155,7 +207,7 @@
   }
 
   .etiqueta-campo-inspector {
-    font-size: 0.69rem;
+    font-size: 0.68rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -175,8 +227,8 @@
   .resumen-metricas-tarea {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.45rem;
-    padding: 0.55rem;
+    gap: 0.4rem;
+    padding: 0.5rem;
     background-color: var(--color-superficie-1);
     border: 1px solid var(--color-borde-sutil);
     border-radius: var(--radio-borde-sm);
@@ -187,13 +239,13 @@
       flex-direction: column;
 
       .etiqueta-mini {
-        font-size: 0.62rem;
+        font-size: 0.61rem;
         color: var(--color-texto-atenuado);
         text-transform: uppercase;
       }
 
       .valor-mini {
-        font-size: 0.78rem;
+        font-size: 0.76rem;
         font-weight: 700;
         color: var(--color-texto-principal);
       }
@@ -201,14 +253,20 @@
   }
 }
 
-// Modal Bulma personalizado para Nueva Tarea
+// Modal Bulma personalizado para Nueva Tarea (responsivo en móviles)
 .modal-nueva-tarea {
+  padding: 0.75rem;
+
   .modal-background {
     background-color: rgba(18, 18, 18, 0.75);
     backdrop-filter: blur(4px);
   }
 
   .modal-card {
+    width: 100%;
+    max-width: 620px;
+    max-height: calc(100dvh - 1.5rem);
+    margin: 0 auto;
     background-color: var(--color-superficie-2);
     border: 1px solid var(--color-acento-borde);
     border-radius: var(--radio-borde-lg);
@@ -219,26 +277,84 @@
   .modal-card-head {
     background-color: var(--color-superficie-1);
     border-bottom: 1px solid var(--color-borde-sutil);
-    padding: 1rem 1.25rem;
+    padding: 0.9rem 1.15rem;
   }
 
   .modal-card-title {
     color: var(--color-texto-principal);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     font-weight: 700;
+    line-height: 1.3;
+
+    @media (max-width: 480px) {
+      font-size: 0.82rem;
+    }
   }
 
   .modal-card-body {
     background-color: var(--color-superficie-2);
     color: var(--color-texto-principal);
-    padding: 1.25rem;
+    padding: 1.1rem;
+    overflow-y: auto;
+
+    @media (max-width: 480px) {
+      padding: 0.85rem;
+    }
   }
 
   .modal-card-foot {
     background-color: var(--color-superficie-1);
     border-top: 1px solid var(--color-borde-sutil);
-    padding: 0.85rem 1.25rem;
+    padding: 0.8rem 1.15rem;
     justify-content: flex-end;
     gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .grilla-modal-encabezado {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+    align-items: end;
+
+    @media (max-width: 560px) {
+      grid-template-columns: 90px 1fr;
+
+      .contenedor-boton-hito-modal {
+        grid-column: 1 / -1;
+
+        .button {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .grilla-modal-dos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+
+    @media (max-width: 520px) {
+      grid-template-columns: 1fr;
+      gap: 0.6rem;
+    }
+  }
+
+  .grilla-modal-tres {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+
+    @media (max-width: 520px) {
+      grid-template-columns: 1fr 1fr;
+
+      .campo-avance-modal {
+        grid-column: 1 / -1;
+      }
+    }
   }
 }

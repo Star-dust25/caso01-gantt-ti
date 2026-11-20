@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Group,
   Panel,
   Separator,
   type PanelImperativeHandle,
 } from 'react-resizable-panels';
+import { GanttChart, Table2, Rows3 } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { BarraHerramientasFlotante } from './componentes/BarraHerramientasFlotante';
 import { EncabezadoCaso } from './componentes/EncabezadoCaso';
@@ -14,7 +15,10 @@ import { PanelInspectorFlotante } from './componentes/PanelInspectorFlotante';
 import { TablaTareas } from './componentes/TablaTareas';
 import { TarjetasIndicadores } from './componentes/TarjetasIndicadores';
 import { usarAlmacenGantt } from './estado/usarAlmacenGantt';
+import { combinarClases } from './utilidades/clases';
 import { calcularRutaCritica } from './utilidades/rutaCritica';
+
+type ModoVistaMovil = 'dividida' | 'gantt' | 'tabla';
 
 export function App() {
   const tareas = usarAlmacenGantt((e) => e.tareas);
@@ -26,11 +30,27 @@ export function App() {
     (e) => e.establecerPanelTablaColapsado
   );
 
+  const [esDispositivoMovil, setEsDispositivoMovil] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth <= 820 : false
+  );
+  const [modoVistaMovil, setModoVistaMovil] =
+    useState<ModoVistaMovil>('gantt');
+
   const referenciaPantalla = useRef<HTMLDivElement | null>(null);
   const referenciaPanelTabla = useRef<PanelImperativeHandle | null>(null);
   const referenciaScrollTabla = useRef<HTMLDivElement | null>(null);
   const referenciaScrollGantt = useRef<HTMLDivElement | null>(null);
   const sincronizandoScrollRef = useRef<boolean>(false);
+
+  // Detectar cambio de tamaño de pantalla para adaptar paneles en móviles y tablets
+  useEffect(() => {
+    const manejarRedimensionVentana = () => {
+      setEsDispositivoMovil(window.innerWidth <= 820);
+    };
+
+    window.addEventListener('resize', manejarRedimensionVentana);
+    return () => window.removeEventListener('resize', manejarRedimensionVentana);
+  }, []);
 
   // Sincronizar el atributo data-tema en el documento raíz
   useEffect(() => {
@@ -132,6 +152,10 @@ export function App() {
   };
 
   const alternarColapsoPanelTabla = () => {
+    if (esDispositivoMovil) {
+      setModoVistaMovil((actual) => (actual === 'gantt' ? 'tabla' : 'gantt'));
+      return;
+    }
     const panel = referenciaPanelTabla.current;
     if (!panel) return;
     if (panel.isCollapsed()) {
@@ -144,6 +168,7 @@ export function App() {
   };
 
   const restablecerLayoutPaneles = () => {
+    setModoVistaMovil('gantt');
     const panel = referenciaPanelTabla.current;
     if (panel) {
       if (panel.isCollapsed()) {
@@ -166,40 +191,52 @@ export function App() {
       {/* Tarjetas KPI Reordenables con @dnd-kit/sortable */}
       <TarjetasIndicadores resultadoCPM={resultadoCPM} tareas={tareas} />
 
+      {/* Conmutador de Vista Táctil exclusivo para Móviles y Tablets pequeñas */}
+      <div className="selector-vista-movil ocultar-en-impresion">
+        <span className="etiqueta-modo-movil">Vista Móvil:</span>
+        <div className="grupo-botones-vista-movil">
+          <button
+            type="button"
+            className={combinarClases(
+              'boton-vista-movil',
+              modoVistaMovil === 'gantt' && 'es-activo'
+            )}
+            onClick={() => setModoVistaMovil('gantt')}
+          >
+            <GanttChart size={13} />
+            <span>Gantt</span>
+          </button>
+
+          <button
+            type="button"
+            className={combinarClases(
+              'boton-vista-movil',
+              modoVistaMovil === 'tabla' && 'es-activo'
+            )}
+            onClick={() => setModoVistaMovil('tabla')}
+          >
+            <Table2 size={13} />
+            <span>Tabla</span>
+          </button>
+
+          <button
+            type="button"
+            className={combinarClases(
+              'boton-vista-movil',
+              modoVistaMovil === 'dividida' && 'es-activo'
+            )}
+            onClick={() => setModoVistaMovil('dividida')}
+          >
+            <Rows3 size={13} />
+            <span>Ambos</span>
+          </button>
+        </div>
+      </div>
+
       {/* Espacio de trabajo dividido y redimensionable (Tabla + Lienzo Gantt) */}
       <main className="area-trabajo-principal">
-        <Group
-          orientation="horizontal"
-          className="grupo-paneles-redimensionables"
-        >
-          <Panel
-            id="panel-tabla-tareas"
-            panelRef={referenciaPanelTabla}
-            defaultSize="44%"
-            minSize="22%"
-            maxSize="65%"
-            collapsible
-            collapsedSize="0%"
-            onResize={(tamano) => {
-              establecerPanelTablaColapsado(tamano.asPercentage < 2);
-            }}
-          >
-            <TablaTareas
-              tareas={tareasFiltradas}
-              metricasPorTarea={resultadoCPM.metricasPorTarea}
-              referenciaScrollTabla={referenciaScrollTabla}
-              alDesplazarVerticalmente={manejarScrollDesdeTabla}
-            />
-          </Panel>
-
-          <Separator
-            className="separador-redimensionable ocultar-en-impresion"
-            title="Arrastra para redimensionar Tabla y Cronograma (doble clic para restablecer)"
-          >
-            <div className="indicador-separador" />
-          </Separator>
-
-          <Panel id="panel-cronograma-gantt" defaultSize="56%" minSize="35%">
+        {esDispositivoMovil && modoVistaMovil === 'gantt' ? (
+          <div className="contenedor-vista-unica-movil">
             <LienzoGantt
               tareas={tareasFiltradas}
               metricasPorTarea={resultadoCPM.metricasPorTarea}
@@ -207,8 +244,63 @@ export function App() {
               referenciaScrollGantt={referenciaScrollGantt}
               alDesplazarVerticalmente={manejarScrollDesdeGantt}
             />
-          </Panel>
-        </Group>
+          </div>
+        ) : esDispositivoMovil && modoVistaMovil === 'tabla' ? (
+          <div className="contenedor-vista-unica-movil">
+            <TablaTareas
+              tareas={tareasFiltradas}
+              metricasPorTarea={resultadoCPM.metricasPorTarea}
+              referenciaScrollTabla={referenciaScrollTabla}
+              alDesplazarVerticalmente={manejarScrollDesdeTabla}
+            />
+          </div>
+        ) : (
+          <Group
+            orientation={esDispositivoMovil ? 'vertical' : 'horizontal'}
+            className="grupo-paneles-redimensionables"
+          >
+            <Panel
+              id="panel-tabla-tareas"
+              panelRef={referenciaPanelTabla}
+              defaultSize={esDispositivoMovil ? '45%' : '44%'}
+              minSize="20%"
+              maxSize="75%"
+              collapsible
+              collapsedSize="0%"
+              onResize={(tamano) => {
+                establecerPanelTablaColapsado(tamano.asPercentage < 2);
+              }}
+            >
+              <TablaTareas
+                tareas={tareasFiltradas}
+                metricasPorTarea={resultadoCPM.metricasPorTarea}
+                referenciaScrollTabla={referenciaScrollTabla}
+                alDesplazarVerticalmente={manejarScrollDesdeTabla}
+              />
+            </Panel>
+
+            <Separator
+              className="separador-redimensionable ocultar-en-impresion"
+              title="Arrastra para redimensionar Tabla y Cronograma (doble clic para restablecer)"
+            >
+              <div className="indicador-separador" />
+            </Separator>
+
+            <Panel
+              id="panel-cronograma-gantt"
+              defaultSize={esDispositivoMovil ? '55%' : '56%'}
+              minSize="25%"
+            >
+              <LienzoGantt
+                tareas={tareasFiltradas}
+                metricasPorTarea={resultadoCPM.metricasPorTarea}
+                duracionTotalSemanas={resultadoCPM.duracionTotalSemanas}
+                referenciaScrollGantt={referenciaScrollGantt}
+                alDesplazarVerticalmente={manejarScrollDesdeGantt}
+              />
+            </Panel>
+          </Group>
+        )}
       </main>
 
       {/* Panel Inspector Flotante Arrastrable */}

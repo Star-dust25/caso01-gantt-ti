@@ -85,15 +85,7 @@ export const ModalNuevaTarea: React.FC = () => {
 
         <form onSubmit={manejarEnvioFormulario}>
           <section className="modal-card-body">
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '90px 1fr auto',
-                gap: '0.75rem',
-                marginBottom: '0.85rem',
-                alignItems: 'end',
-              }}
-            >
+            <div className="grilla-modal-encabezado">
               <div>
                 <label className="etiqueta-campo-inspector">Código WBS</label>
                 <input
@@ -119,7 +111,7 @@ export const ModalNuevaTarea: React.FC = () => {
                 />
               </div>
 
-              <div>
+              <div className="contenedor-boton-hito-modal">
                 <button
                   type="button"
                   className={combinarClases(
@@ -136,14 +128,7 @@ export const ModalNuevaTarea: React.FC = () => {
               </div>
             </div>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '0.75rem',
-                marginBottom: '0.85rem',
-              }}
-            >
+            <div className="grilla-modal-dos">
               <div>
                 <label className="etiqueta-campo-inspector">Fase del Proyecto</label>
                 <div className="select is-small is-fullwidth">
@@ -179,14 +164,7 @@ export const ModalNuevaTarea: React.FC = () => {
               </div>
             </div>
 
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1fr',
-                gap: '0.75rem',
-                marginBottom: '0.85rem',
-              }}
-            >
+            <div className="grilla-modal-tres">
               <div>
                 <label className="etiqueta-campo-inspector">
                   Semana de Inicio
@@ -220,7 +198,7 @@ export const ModalNuevaTarea: React.FC = () => {
                 />
               </div>
 
-              <div>
+              <div className="campo-avance-modal">
                 <label className="etiqueta-campo-inspector">
                   Avance Inicial ({porcentajeAvance}%)
                 </label>

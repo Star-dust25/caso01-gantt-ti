@@ -104,10 +104,12 @@ export const BarraTarea: React.FC<PropiedadesBarraTarea> = ({
       setModoActivo(null);
       window.removeEventListener('pointermove', manejarMovimientoPuntero);
       window.removeEventListener('pointerup', manejarFinPuntero);
+      window.removeEventListener('pointercancel', manejarFinPuntero);
     };
 
     window.addEventListener('pointermove', manejarMovimientoPuntero);
     window.addEventListener('pointerup', manejarFinPuntero);
+    window.addEventListener('pointercancel', manejarFinPuntero);
   };
 
   const manejarClicBarra = (evento: React.MouseEvent) => {
