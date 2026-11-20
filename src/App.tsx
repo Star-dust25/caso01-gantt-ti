@@ -29,6 +29,9 @@ export function App() {
   const establecerPanelTablaColapsado = usarAlmacenGantt(
     (e) => e.establecerPanelTablaColapsado
   );
+  const contadorRestablecimientoLayout = usarAlmacenGantt(
+    (e) => e.contadorRestablecimientoLayout
+  );
 
   const [esDispositivoMovil, setEsDispositivoMovil] = useState<boolean>(() =>
     typeof window !== 'undefined' ? window.innerWidth <= 820 : false
@@ -311,6 +314,7 @@ export function App() {
 
       {/* Dock de Herramientas Flotante Arrastrable */}
       <BarraHerramientasFlotante
+        key={contadorRestablecimientoLayout}
         referenciaRestriccionPantalla={referenciaPantalla}
         alRestablecerLayoutPaneles={restablecerLayoutPaneles}
       />
